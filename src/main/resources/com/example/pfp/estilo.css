@@ -1,0 +1,24 @@
+.button:hover {
+    //-fx-border-width: 0px 0px 2px 0px;
+    -fx-font-weight: bold;
+    -fx-background-color: #fff;
+    -fx-text-fill: #0e094f;
+
+}
+
+.button{
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    //-fx-border-width: 0px 0px 0px 0px;
+}
+
+#lblMenu{
+    .label {
+        -fx-padding: 60 0 0 0;
+        -fx-font-size: 30px;
+        -fx-font-weight: bold;
+        -fx-text-fill: white;
+        -fx-font-family: "Century Gothic", sans-serif;
+    }
+}
+
