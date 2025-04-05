@@ -7,18 +7,18 @@ import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioButton;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 
 import javafx.fxml.FXML;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import logico.Grafo;
 import logico.Parada;
 
@@ -120,15 +120,20 @@ public class Controladora {
             MenuItem modificarItem = new MenuItem("Modificar");
             modificarItem.setOnAction(e -> {
 
-                System.out.println("Modificar: " + nodo.getUserData());
+                Parada parada = (Parada) nodo.getUserData();
+                abrirVentanaModificar(parada, nodo);
             });
 
 
             MenuItem eliminarItem = new MenuItem("Eliminar");
             eliminarItem.setOnAction(e -> {
 
-                System.out.println("Eliminar: " + nodo.getUserData());
-                grafoContenedor.getChildren().remove(nodo);
+                Parada parada = (Parada) nodo.getUserData();
+                boolean eliminado = grafo.eliminarParada(parada);
+
+                if (eliminado) {
+                    grafoContenedor.getChildren().remove(nodo);
+                }
             });
 
             contextMenu.getItems().addAll(modificarItem, eliminarItem);
@@ -162,7 +167,7 @@ public class Controladora {
             nodo.setTranslateX(adjustadoX);
             nodo.setTranslateY(adjustadoY);
 
-           // nodo.setUserData("Nodo " + nodoContador);
+           nodo.setUserData(nuevaParada);
 
             nodoContador++;
 
@@ -181,6 +186,35 @@ public class Controladora {
             }
         }
         return null;
+    }
+
+
+    private void abrirVentanaModificar(Parada parada, Group nodo) {
+        Stage ventanaModificar = new Stage();
+        ventanaModificar.setTitle("Modificar Parada");
+
+        Label label = new Label("Nombre:");
+        TextField campoNombre = new TextField(parada.getNombre());
+        Button botonConfirmar = new Button("Confirmar");
+
+        botonConfirmar.setOnAction(e -> {
+
+            String nuevoNombre = campoNombre.getText();
+            parada.setNombre(nuevoNombre);
+            //System.out.println("Nuevo nombre: " + parada.getNombre());
+
+            Text nombreTexto = (Text) nodo.getChildren().get(1);
+            nombreTexto.setText(nuevoNombre);
+
+            ventanaModificar.close();
+        });
+
+        VBox layout = new VBox(10, label, campoNombre, botonConfirmar);
+        layout.setStyle("-fx-padding: 10;");
+
+        Scene scene = new Scene(layout);
+        ventanaModificar.setScene(scene);
+        ventanaModificar.show();
     }
 }
 
