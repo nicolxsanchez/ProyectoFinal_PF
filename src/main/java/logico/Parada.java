@@ -6,11 +6,8 @@ public class Parada {
     private double latitud;
     private double longitud;
 
-    public Parada(String nombre, double latitud, double longitud) {
+    public Parada(String nombre) {
         this.nombre = nombre;
-        this.latitud = latitud;
-        this.longitud = longitud;
-
     }
 
     public double getLatitud() {

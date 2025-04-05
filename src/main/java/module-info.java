@@ -11,6 +11,7 @@ module com.example.pfp {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires smartgraph;
+    requires java.desktop;
 
 
     opens com.example.pfp to javafx.fxml;

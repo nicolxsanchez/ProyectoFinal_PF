@@ -1,15 +1,16 @@
-.button:hover {
-    //-fx-border-width: 0px 0px 2px 0px;
-    -fx-font-weight: bold;
-    -fx-background-color: #fff;
-    -fx-text-fill: #0e094f;
 
-}
 
 .button{
     -fx-text-fill: white;
     -fx-background-color: transparent;
-    //-fx-border-width: 0px 0px 0px 0px;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.button-selected {
+    -fx-background-color: #fff;
+    -fx-text-fill: #0e094f;
+
 }
 
 #lblMenu{
@@ -20,5 +21,17 @@
         -fx-text-fill: white;
         -fx-font-family: "Century Gothic", sans-serif;
     }
+}
+
+.nodo-circulo {
+    -fx-fill: #7bb3e8;      /* Color azul */
+    -fx-stroke: #1a4a78;      /* Borde blanco */
+    -fx-stroke-width: 4px;
+}
+.nodo-texto {
+    -fx-fill: black;         /* Color del texto negro */
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Arial";
 }
 
