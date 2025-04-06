@@ -171,18 +171,94 @@ public class Controladora {
 
         Line linea = new Line(startX, startY, endX, endY);
         linea.getStyleClass().add("linea-ruta");
-
         linea.setManaged(false);
-
         linea.setUserData(nodo1);
+        linea.setPickOnBounds(true);
 
-        mostrarVentanaRuta(nodoOrigen, nodoDestino, null, null, null, null);
 
-        // Texto con info de la ruta
+        linea.setOnContextMenuRequested(event -> {
+            event.consume();
+            ContextMenu menu = new ContextMenu();
+
+            MenuItem modificarItem = new MenuItem("Modificar");
+            MenuItem eliminarItem = new MenuItem("Eliminar");
+
+            modificarItem.setOnAction(e -> {
+                Group origen = (Group) linea.getUserData();
+                Group destino = null;
+
+                for (Map.Entry<Group, List<Line>> entry : lineasPorNodo.entrySet()) {
+                    if (entry.getValue().contains(linea) && entry.getKey() != origen) {
+                        destino = entry.getKey();
+                        break;
+                    }
+                }
+
+                if (origen != null && destino != null) {
+                    Parada paradaOrigen = (Parada) origen.getUserData();
+                    Parada paradaDestino = (Parada) destino.getUserData();
+
+                    Ruta ruta = grafo.obtenerRuta(paradaOrigen, paradaDestino);
+                    if (ruta != null) {
+                        String distanciaRuta = String.valueOf(ruta.getDistancia());
+                        String tiempoRuta = String.valueOf(ruta.getTiempo());
+                        String costoRuta = String.valueOf(ruta.getCosto());
+                        mostrarVentanaRuta(origen, destino, distanciaRuta, tiempoRuta, costoRuta, linea);
+                    }
+                }
+            });
+
+            eliminarItem.setOnAction(e -> {
+                Group origen = (Group) linea.getUserData();
+                Group destino = null;
+
+                for (Map.Entry<Group, List<Line>> entry : lineasPorNodo.entrySet()) {
+                    if (entry.getValue().contains(linea) && entry.getKey() != origen) {
+                        destino = entry.getKey();
+                        break;
+                    }
+                }
+
+                if (origen != null && destino != null) {
+                    Parada paradaOrigen = (Parada) origen.getUserData();
+                    Parada paradaDestino = (Parada) destino.getUserData();
+
+                    Ruta rutaAEliminar = null;
+                    List<Ruta> rutasDesdeOrigen = grafo.getAdyacencias().get(paradaOrigen);
+
+                    if (rutasDesdeOrigen != null) {
+                        for (Ruta r : rutasDesdeOrigen) {
+                            if (r.getDestino().equals(paradaDestino)) {
+                                rutaAEliminar = r;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (rutaAEliminar != null) {
+                        boolean eliminado = grafo.eliminarRuta(rutaAEliminar);
+                        if (eliminado) {
+                            grafoContenedor.getChildren().remove(linea);
+                            grafoContenedor.getChildren().remove(textoPorLinea.get(linea));
+                            lineasPorNodo.get(origen).remove(linea);
+                            lineasPorNodo.get(destino).remove(linea);
+                            textoPorLinea.remove(linea);
+                        }
+                    }
+                }
+            });
+
+            menu.getItems().addAll(modificarItem, eliminarItem);
+            menu.show(linea, event.getScreenX(), event.getScreenY());
+        });
+
+
+
         Text texto = new Text(distancia + " km, " + tiempo + " min, RD$" + costo);
         texto.setFont(Font.font(12));
         texto.setFill(Color.DARKBLUE);
         posicionarTextoLinea(texto, startX, startY, endX, endY);
+        texto.setMouseTransparent(true);
         grafoContenedor.getChildren().add(texto);
 
         textoPorLinea.put(linea, texto);
@@ -218,24 +294,11 @@ public class Controladora {
                     linea.setEndY(posY);
                 }
 
-                linea.setOnMouseClicked(event -> {
-                    if (event.isSecondaryButtonDown()) {
-                        Group origen = (Group) linea.getUserData();
-                        Group destino = null;
 
-                        for (Map.Entry<Group, List<Line>> entry : lineasPorNodo.entrySet()) {
-                            if (entry.getValue().contains(linea) && entry.getKey() != origen) {
-                                destino = entry.getKey();
-                                break;
-                            }
-                        }
 
                         // Aquí podrías hacer algo con origen y destino si lo deseas.
                         // Por ejemplo, mostrar datos o eliminar la ruta.
 
-                        event.consume();
-                    }
-                });
 
                 Text texto = textoPorLinea.get(linea);
                 if (texto != null) {
@@ -427,10 +490,12 @@ public class Controladora {
                         // MODIFICACIÓN
                         Text texto = textoPorLinea.get(lineaExistente);
                         texto.setText(distancia + " km, " + tiempo + " min, RD$" + costo);
-                        grafo.modificarRuta(paradaOrigen, paradaDestino, tiempoInt, distanciaInt, costoDouble); // Asegúrate que este método exista
+                        grafo.modificarRuta(paradaOrigen, paradaDestino, tiempoInt, distanciaInt, costoDouble);
                     }
 
                     ventanaRuta.close();
+
+
                 } catch (NumberFormatException ex) {
                     mostrarMensajeError("Los valores deben ser numéricos válidos.");
                 }
@@ -446,7 +511,9 @@ public class Controladora {
         ventanaRuta.setScene(scene);
         ventanaRuta.initModality(Modality.APPLICATION_MODAL);
         ventanaRuta.initOwner(grafoContenedor.getScene().getWindow());
+        grafoContenedor.requestFocus();
         ventanaRuta.showAndWait();
+
     }
 
 

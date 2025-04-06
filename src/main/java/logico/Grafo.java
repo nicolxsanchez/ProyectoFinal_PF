@@ -113,6 +113,19 @@ public class Grafo {
         return eliminado;
     }
 
+    public Ruta obtenerRuta(Parada origen, Parada destino) {
+        if (!adyacencias.containsKey(origen)) {
+            return null;
+        }
+
+        for (Ruta ruta : adyacencias.get(origen)) {
+            if (ruta.getDestino().equals(destino)) {
+                return ruta;
+            }
+        }
+        return null;
+    }
+
     //devuelve el mapa de adyacencias
     public Map<Parada, List<Ruta>> getAdyacencias() {
         return adyacencias;
