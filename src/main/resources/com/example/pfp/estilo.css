@@ -13,6 +13,8 @@
 
 }
 
+
+
 #lblMenu{
     .label {
         -fx-padding: 60 0 0 0;
@@ -33,5 +35,13 @@
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-font-family: "Arial";
+}
+
+
+.linea-ruta {
+    -fx-stroke: black;
+    -fx-stroke-width: 4;
+    -fx-stroke-linecap: round;
+    -fx-stroke-linejoin: round;
 }
 

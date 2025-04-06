@@ -32,6 +32,27 @@ public class Grafo {
         return true;
     }
 
+    public boolean modificarRuta(Parada origen, Parada destino, int tiempo, int distancia, double costo) {
+        if (!adyacencias.containsKey(origen) || !adyacencias.containsKey(destino)) {
+            System.out.println("Origen o destino no existen.");
+            return false;
+        }
+
+        for (Ruta ruta : adyacencias.get(origen)) {
+            if (ruta.getDestino().equals(destino)) {
+                // Modificar los atributos de la ruta
+                ruta.setTiempo(tiempo);
+                ruta.setDistancia(distancia);
+                ruta.setCosto(costo);
+                System.out.println("Ruta modificada de " + origen.getNombre() + " a " + destino.getNombre());
+                return true;
+            }
+        }
+
+        System.out.println("No existe una ruta de " + origen.getNombre() + " a " + destino.getNombre());
+        return false;
+    }
+
     //agrega una nueva ruta entre dos paradas en el grafo
     public boolean agregarRuta(Parada origen, Parada destino, int tiempo, int distancia, double costo) {
         if (!adyacencias.containsKey(origen) || !adyacencias.containsKey(destino)) {
@@ -52,14 +73,14 @@ public class Grafo {
     }
 
     //modifica los datos de una parada existente
-    public boolean modificarParada(Parada parada, String nuevoNombre, double nuevoLatitud, double nuevoLongitud) {
+    public boolean modificarParada(Parada parada, String nuevoNombre, double x, double y) {
         if (!adyacencias.containsKey(parada)) {
             System.out.println("La parada no existe.");
             return false;
         }
         parada.setNombre(nuevoNombre);
-        parada.setLatitud(nuevoLatitud);
-        parada.setLongitud(nuevoLongitud);
+        parada.setX(x);
+        parada.setY(y);
         System.out.println("Parada modificada: " + parada.getNombre());
         return true;
     }

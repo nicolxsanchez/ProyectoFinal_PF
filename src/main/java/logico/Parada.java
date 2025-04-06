@@ -3,25 +3,25 @@ package logico;
 public class Parada {
 
     private String nombre;
-    private double latitud;
-    private double longitud;
+    private double x;
+    private double y;
 
     public Parada(String nombre) {
         this.nombre = nombre;
     }
 
-    public double getLatitud() {
-        return latitud;
+    public double getX() {
+        return x;
     }
-    public double getLongitud() {
-        return longitud;
+    public double getY() {
+        return y;
     }
 
-    public double setLatitud(double latitud) {
-        return this.latitud = latitud;
+    public double setX(double x) {
+        return this.x = x;
     }
-    public double setLongitud(double longitud) {
-        return this.longitud = longitud;
+    public double setY(double y) {
+        return this.y = y;
     }
 
     public String getNombre() {
