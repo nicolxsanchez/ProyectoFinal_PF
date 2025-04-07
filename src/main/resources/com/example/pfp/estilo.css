@@ -26,15 +26,21 @@
 }
 
 .nodo-circulo {
-    -fx-fill: #7bb3e8;      /* Color azul */
-    -fx-stroke: #1a4a78;      /* Borde blanco */
+    -fx-fill: #7bb3e8;
+    -fx-stroke: #1a4a78;
     -fx-stroke-width: 4px;
 }
 .nodo-texto {
-    -fx-fill: black;         /* Color del texto negro */
+    -fx-fill: black;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-font-family: "Arial";
+}
+
+.parada-selected {
+    -fx-fill: #a5d389;
+    -fx-stroke: #496638;
+    -fx-stroke-width: 4px;
 }
 
 
@@ -43,5 +49,31 @@
     -fx-stroke-width: 4;
     -fx-stroke-linecap: round;
     -fx-stroke-linejoin: round;
+}
+
+.pane-rutas{
+
+    -fx-background-color: transparent;
+    -fx-padding: 10 0 0 0;
+}
+
+.button-calcular{
+    -fx-text-fill: #0e094f;
+    -fx-background-color: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+    -fx-padding: 4 8;
+}
+
+.combo-box{
+    -fx-background-color: white;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-font-size: 12px;
+    -fx-text-fill: #0e094f;
+    -fx-padding: 4 8;
+    -fx-font-weight: bold;
 }
 

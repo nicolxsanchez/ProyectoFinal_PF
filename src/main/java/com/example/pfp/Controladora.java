@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
@@ -18,6 +19,7 @@ import logico.Grafo;
 import logico.Parada;
 import logico.Ruta;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,48 +34,102 @@ public class Controladora {
     @FXML
     private Button btnAgregarRuta;
     @FXML
+    private Button btnCalculoRutas;
+    @FXML
     private StackPane grafoContenedor;
+    @FXML
+    private Pane paneRutas;
+    @FXML
+    private Button btnCalcular;
+    @FXML
+    private ComboBox<String> cbCriterio;
 
     private int nodoContador = 1;
-    private  int nodosSeleccionados = 0;
-
     private boolean moverNodo = false;
     private boolean modoAgregarNodo = false;
     private boolean modoAgregarRuta = false;
+    private boolean modoCalculoRutas = false;
     private boolean clicDerechoEnNodo = false;
+    private boolean nodosSeleccionadosCompletos = false;
+
 
     private Group nodoOrigen = null;
     private Group nodoDestino = null;
-
     private Map<Group, List<Line>> lineasPorNodo = new HashMap<>();
     private Map<Line, Text> textoPorLinea = new HashMap<>();
 
     @FXML
     public void initialize() {
 
+        cbCriterio.getItems().addAll("Distancia", "Tiempo", "Costo", "Transbordo");
         grafoContenedor.setOnMouseClicked(this::manejarClick);
 
-
         btnAgregarParada.setOnAction(e -> {
-            modoAgregarNodo = true;
+            resetCalculoRutas();
             modoAgregarRuta = false;
+            modoCalculoRutas = false;
+            modoAgregarNodo = true;
+            btnAgregarRuta.getStyleClass().removeAll("button-selected");
+            btnCalculoRutas.getStyleClass().removeAll("button-selected");
             btnAgregarParada.getStyleClass().add("button-selected");
-            btnAgregarRuta.getStyleClass().remove("button-selected");
         });
 
         btnAgregarRuta.setOnAction(e -> {
+            resetCalculoRutas();
             modoAgregarNodo = false;
+            modoCalculoRutas = false;
             modoAgregarRuta = true;
-            nodosSeleccionados = 0;
+            btnAgregarParada.getStyleClass().removeAll("button-selected");
+            btnCalculoRutas.getStyleClass().removeAll("button-selected");
             btnAgregarRuta.getStyleClass().add("button-selected");
-            btnAgregarParada.getStyleClass().remove("button-selected");
-
         });
 
+        btnCalculoRutas.setOnAction(e -> {
 
+            if (!existenRutasEnGrafo()) {
+                mostrarMensajeError("No existen rutas creadas en el grafo.");
+                btnCalculoRutas.getStyleClass().removeAll("button-selected");
+                modoCalculoRutas = false;
+                return;
+            }
+
+            resetCalculoRutas();
+            modoAgregarNodo = false;
+            modoAgregarRuta = false;
+            modoCalculoRutas = true;
+            btnAgregarRuta.getStyleClass().removeAll("button-selected");
+            btnAgregarParada.getStyleClass().removeAll("button-selected");
+            btnCalculoRutas.getStyleClass().add("button-selected");
+        });
+
+        btnCalcular.setOnAction(e -> {
+            String criterio = cbCriterio.getSelectionModel().getSelectedItem();
+            if (criterio == null) {
+                mostrarMensajeError("Debes seleccionar un criterio antes de calcular.");
+                return;
+            }
+
+            if(criterio.equals("Distancia")){
+
+            } else if (criterio.equals("Tiempo")){
+
+            }else if (criterio.equals("Costo")){
+
+            }else if(criterio.equals("Transbordo")){
+
+            }
+        });
     }
 
+    private boolean existenRutasEnGrafo() {
 
+        for (List<Ruta> listaRutas : grafo.getAdyacencias().values()) {
+            if (listaRutas != null && !listaRutas.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     private boolean existeRutaEntre(Group nodo1, Group nodo2) {
@@ -81,29 +137,22 @@ public class Controladora {
         if (lineasNodo1 == null) return false;
 
         for (Line linea : lineasNodo1) {
-            Group origen = (Group) linea.getUserData();
-
-            // Revisamos si la línea también está asociada al nodo2
             List<Line> lineasNodo2 = lineasPorNodo.get(nodo2);
             if (lineasNodo2 != null && lineasNodo2.contains(linea)) {
                 return true;
             }
         }
-
         return false;
     }
 
 
    private void manejarClick(MouseEvent event) {
 
-
-
         if (event.getButton() == javafx.scene.input.MouseButton.SECONDARY) {
             clicDerechoEnNodo = true;
         } else {
             clicDerechoEnNodo = false;
         }
-
 
        if (modoAgregarRuta) {
 
@@ -121,17 +170,43 @@ public class Controladora {
                    nodoOrigen = null;
                    return;
                }
-
                if (existeRutaEntre(nodoOrigen, nodoDestino)) {
                    mostrarMensajeError("Ya existe una ruta entre estas dos paradas.");
                    nodoOrigen = null;
                    return;
                }
-
                mostrarVentanaRuta(nodoOrigen, nodoDestino, null, null, null, null);
                nodoOrigen = null;
            }
            return;
+       }
+
+       if(modoCalculoRutas) {
+           if (nodosSeleccionadosCompletos) return;
+           Group nodoSeleccionado = getCursorPosicionNodo(event);
+
+
+
+           if (nodoSeleccionado == null) return;
+
+           Circle circulo = (Circle) nodoSeleccionado.getChildren().get(0);
+
+           if (nodoOrigen == null) {
+               nodoOrigen = nodoSeleccionado;
+               circulo.getStyleClass().add("parada-selected");
+           } else {
+               nodoDestino = nodoSeleccionado;
+
+               if (nodoOrigen == nodoDestino) {
+                   mostrarMensajeError("No puedes seleccionar la misma parada.");
+                   circulo.getStyleClass().remove("parada-selected");
+                   nodoOrigen = null;
+                   return;
+               }
+               circulo.getStyleClass().add("parada-selected");
+               nodosSeleccionadosCompletos = true;
+               paneRutas.setVisible(true);
+           }
        }
 
             if (!modoAgregarNodo || clicDerechoEnNodo) return;
@@ -140,14 +215,11 @@ public class Controladora {
                 moverNodo = false;
                 return;
             }
-
             Group nodoSeleccionado = getCursorPosicionNodo(event);
-
             if (nodoSeleccionado != null) {
                 System.out.println("Se hizo click en un nodo existente en modo agregar nodo.");
                 return;
             }
-
             addNuevoNodo(event);
         }
 
@@ -160,6 +232,8 @@ public class Controladora {
         texto.setManaged(false);
     }
 
+
+    //muy largo
     private void dibujarLineaEntreNodos(Group nodo1, Group nodo2, String distancia, String tiempo, String costo) {
         double centroContenedorX = grafoContenedor.getWidth() / 2;
         double centroContenedorY = grafoContenedor.getHeight() / 2;
@@ -174,7 +248,6 @@ public class Controladora {
         linea.setManaged(false);
         linea.setUserData(nodo1);
         linea.setPickOnBounds(true);
-
 
         linea.setOnContextMenuRequested(event -> {
             event.consume();
@@ -247,12 +320,9 @@ public class Controladora {
                     }
                 }
             });
-
             menu.getItems().addAll(modificarItem, eliminarItem);
             menu.show(linea, event.getScreenX(), event.getScreenY());
         });
-
-
 
         Text texto = new Text(distancia + " km, " + tiempo + " min, RD$" + costo);
         texto.setFont(Font.font(12));
@@ -260,15 +330,11 @@ public class Controladora {
         posicionarTextoLinea(texto, startX, startY, endX, endY);
         texto.setMouseTransparent(true);
         grafoContenedor.getChildren().add(texto);
-
         textoPorLinea.put(linea, texto);
-
 
         lineasPorNodo.computeIfAbsent(nodo1, k -> new ArrayList<>()).add(linea);
         lineasPorNodo.computeIfAbsent(nodo2, k -> new ArrayList<>()).add(linea);
-
         grafoContenedor.getChildren().add(0, linea);
-
     }
 
 
@@ -294,12 +360,6 @@ public class Controladora {
                     linea.setEndY(posY);
                 }
 
-
-
-                        // Aquí podrías hacer algo con origen y destino si lo deseas.
-                        // Por ejemplo, mostrar datos o eliminar la ruta.
-
-
                 Text texto = textoPorLinea.get(linea);
                 if (texto != null) {
                     double newStartX = linea.getStartX();
@@ -313,6 +373,7 @@ public class Controladora {
     }
 
 
+    //muy largo
     private void makeNodoMovible(Group nodo) {
         final double[] offsetX = new double[1];
         final double[] offsetY = new double[1];
@@ -336,10 +397,6 @@ public class Controladora {
             event.consume();
         });
 
-
-
-
-
         nodo.setOnMouseReleased(event -> {
             if (!modoAgregarNodo) return;
             event.consume();
@@ -349,38 +406,54 @@ public class Controladora {
             if (!modoAgregarNodo) return;
             ContextMenu contextMenu = new ContextMenu();
 
-
             MenuItem modificarItem = new MenuItem("Modificar");
             modificarItem.setOnAction(e -> {
-
                 Parada parada = (Parada) nodo.getUserData();
                 abrirVentanaModificar(parada, nodo);
             });
 
-
             MenuItem eliminarItem = new MenuItem("Eliminar");
             eliminarItem.setOnAction(e -> {
-
+                List<Line> lineasAsociadas = lineasPorNodo.get(nodo);
+                if (lineasAsociadas != null) {
+                    for (Line linea : new ArrayList<>(lineasAsociadas)) {
+                        Group otroNodo = null;
+                        for (Map.Entry<Group, List<Line>> entry : lineasPorNodo.entrySet()) {
+                            if (!entry.getKey().equals(nodo) && entry.getValue().contains(linea)) {
+                                otroNodo = entry.getKey();
+                                break;
+                            }
+                        }
+                        grafoContenedor.getChildren().remove(linea);
+                        Text txt = textoPorLinea.remove(linea);
+                        if (txt != null) {
+                            grafoContenedor.getChildren().remove(txt);
+                        }
+                        if (otroNodo != null) {
+                            List<Line> listaOtro = lineasPorNodo.get(otroNodo);
+                            if (listaOtro != null) {
+                                listaOtro.remove(linea);
+                            }
+                        }
+                    }
+                    lineasPorNodo.remove(nodo);
+                }
                 Parada parada = (Parada) nodo.getUserData();
                 boolean eliminado = grafo.eliminarParada(parada);
-
                 if (eliminado) {
                     grafoContenedor.getChildren().remove(nodo);
                 }
             });
-
             contextMenu.getItems().addAll(modificarItem, eliminarItem);
             contextMenu.show(nodo, event.getScreenX(), event.getScreenY());
         });
     }
 
-    private void addNuevoNodo(MouseEvent event) {
 
+    private void addNuevoNodo(MouseEvent event) {
         String nombreParada = "Parada " + nodoContador;
         Parada nuevaParada = new Parada(nombreParada);
-
         boolean agregado = grafo.agregarParada(nuevaParada);
-
 
         if (agregado) {
             Circle circulo = new Circle(15);
@@ -392,28 +465,22 @@ public class Controladora {
             Group nodo = new Group(circulo, nombre);
             nombre.setTranslateY(circulo.getRadius() + 15);
 
-
             double adjustadoX = event.getX() - (grafoContenedor.getWidth() / 2);
             double adjustadoY = event.getY() - (grafoContenedor.getHeight() / 2);
 
             nombre.setTranslateX(-nombre.getBoundsInLocal().getWidth() / 2);
-
             nodo.setTranslateX(adjustadoX);
             nodo.setTranslateY(adjustadoY);
-
-           nodo.setUserData(nuevaParada);
-
+            nodo.setUserData(nuevaParada);
             nodoContador++;
-
             grafoContenedor.getChildren().add(nodo);
-
             makeNodoMovible(nodo);
 
             nuevaParada.setX(adjustadoX);
             nuevaParada.setY(adjustadoY);
-
         }
     }
+
 
     private Group getCursorPosicionNodo(MouseEvent evento) {
         for (Node nodo : grafoContenedor.getChildren()) {
@@ -425,6 +492,7 @@ public class Controladora {
         }
         return null;
     }
+
 
     private void abrirVentanaModificar(Parada parada, Group nodo) {
         Stage ventanaModificar = new Stage();
@@ -438,11 +506,9 @@ public class Controladora {
 
             String nuevoNombre = campoNombre.getText();
             parada.setNombre(nuevoNombre);
-            //System.out.println("Nuevo nombre: " + parada.getNombre());
 
             Text nombreTexto = (Text) nodo.getChildren().get(1);
             nombreTexto.setText(nuevoNombre);
-
             ventanaModificar.close();
         });
 
@@ -453,7 +519,6 @@ public class Controladora {
         ventanaModificar.setScene(scene);
         ventanaModificar.show();
     }
-
 
 
     private void mostrarVentanaRuta(Group nodoOrigen, Group nodoDestino, String distanciaInicial, String tiempoInicial, String costoInicial, Line lineaExistente) {
@@ -517,11 +582,11 @@ public class Controladora {
     }
 
 
-
     private boolean validarDatos(String distancia, String tiempo, String costo) {
 
         return !distancia.isEmpty() && !tiempo.isEmpty() && !costo.isEmpty();
     }
+
 
     private void mostrarMensajeError(String mensaje) {
         Alert alerta = new Alert(Alert.AlertType.ERROR);
@@ -531,8 +596,21 @@ public class Controladora {
         alerta.showAndWait();
     }
 
+    private void resetCalculoRutas() {
+
+        if (nodoOrigen != null) {
+            ((Circle) nodoOrigen.getChildren().get(0))
+                    .getStyleClass().removeAll("parada-selected");
+        }
+        if (nodoDestino != null) {
+            ((Circle) nodoDestino.getChildren().get(0))
+                    .getStyleClass().removeAll("parada-selected");
+        }
+
+        cbCriterio.getSelectionModel().selectFirst();
+        nodoOrigen = null;
+        nodoDestino = null;
+        nodosSeleccionadosCompletos = false;
+        paneRutas.setVisible(false);
+    }
 }
-
-
-
-

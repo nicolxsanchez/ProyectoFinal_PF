@@ -2,14 +2,16 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane  stylesheets="@estilo.css" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="885.0" prefWidth="1490.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.pfp.Controladora">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="885.0" prefWidth="1490.0" stylesheets="@estilo.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.pfp.Controladora">
    <children>
       <StackPane fx:id="grafoContenedor" layoutX="229.0" layoutY="-1.0" prefHeight="885.0" prefWidth="1269.0" />
       <VBox alignment="TOP_CENTER" prefHeight="885.0" prefWidth="231.0" style="-fx-background-color: #0e094f; -fx-padding: 15 0 0 0;">
@@ -23,16 +25,32 @@
                </opaqueInsets>
             </Label>
             <Separator maxWidth="190.0" minWidth="-Infinity" prefHeight="15.0" prefWidth="30.0" />
-            <Button fx:id="btnAgregarParada"  stylesheets="@estilo.css" mnemonicParsing="false" prefHeight="67.0" prefWidth="191.0" text="Agregar Parada">
+            <Button fx:id="btnAgregarParada" mnemonicParsing="false" prefHeight="67.0" prefWidth="191.0" stylesheets="@estilo.css" text="Gestión de Parada">
                <font>
                   <Font size="17.0" />
                </font>
             </Button>
-            <Button fx:id="btnAgregarRuta" stylesheets="@estilo.css" mnemonicParsing="false" prefHeight="67.0" prefWidth="192.0" text="Agregar Ruta">
+            <Button fx:id="btnAgregarRuta" mnemonicParsing="false" prefHeight="67.0" prefWidth="192.0" stylesheets="@estilo.css" text="Gestión de Rutas">
                <font>
                   <Font size="17.0" />
                </font>
             </Button>
+            <Button fx:id="btnCalculoRutas" layoutX="30.0" layoutY="146.0" mnemonicParsing="false" prefHeight="67.0" prefWidth="192.0" stylesheets="@estilo.css" text="Cálculo de Rutas">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </Button>
+            <Pane fx:id="paneRutas" prefHeight="198.0" prefWidth="231.0" styleClass="pane-rutas" visible="false">
+               <children>
+                  <Label layoutX="27.0" layoutY="30.0" text="Criterio de Optimización:" textFill="#4eacf8">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <ComboBox fx:id="cbCriterio" layoutX="31.0" layoutY="73.0" prefHeight="25.0" prefWidth="168.0" promptText="&lt;Seleccionar&gt;" />
+                  <Button fx:id="btnCalcular" layoutX="83.0" layoutY="137.0" mnemonicParsing="false" styleClass="button-calcular" text="Calcular" />
+               </children>
+            </Pane>
          </children>
       </VBox>
    </children>
