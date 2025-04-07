@@ -21,7 +21,6 @@ public class Grafo {
         return rutas;
     }
 
-    //agrega una nueva parada al grafo
     public boolean agregarParada(Parada parada) {
         if (adyacencias.containsKey(parada)) {
             System.out.println("La parada '" + parada.getNombre() + "' ya existe.");
@@ -85,7 +84,6 @@ public class Grafo {
         return true;
     }
 
-    //elimina una parada del grafo y sus rutas asociadas
     public boolean eliminarParada(Parada parada) {
         if (!adyacencias.containsKey(parada)) {
             System.out.println("La parada no existe.");
@@ -97,7 +95,6 @@ public class Grafo {
         return true;
     }
 
-    //elimina una ruta del grafo
     public boolean eliminarRuta(Ruta ruta) {
         if (!adyacencias.containsKey(ruta.getOrigen())) {
             System.out.println("La parada de origen no existe.");
@@ -126,7 +123,6 @@ public class Grafo {
         return null;
     }
 
-    //devuelve el mapa de adyacencias
     public Map<Parada, List<Ruta>> getAdyacencias() {
         return adyacencias;
     }

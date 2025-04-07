@@ -43,6 +43,18 @@
     -fx-stroke-width: 4px;
 }
 
+.parada-preferida{
+    -fx-stroke: #583871;
+    -fx-stroke-width: 4px;
+    -fx-fill: #b688d9;
+
+}
+
+.linea-preferida {
+    -fx-stroke: #8730cb;
+    -fx-stroke-width: 4px;
+}
+
 
 .linea-ruta {
     -fx-stroke: black;

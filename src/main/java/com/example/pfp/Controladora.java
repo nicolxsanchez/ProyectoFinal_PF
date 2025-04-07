@@ -15,15 +15,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import logico.Algoritmos;
 import logico.Grafo;
 import logico.Parada;
 import logico.Ruta;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Controladora {
 
@@ -103,21 +101,70 @@ public class Controladora {
         });
 
         btnCalcular.setOnAction(e -> {
+            resetColores();
             String criterio = cbCriterio.getSelectionModel().getSelectedItem();
             if (criterio == null) {
                 mostrarMensajeError("Debes seleccionar un criterio antes de calcular.");
                 return;
             }
 
-            if(criterio.equals("Distancia")){
-
-            } else if (criterio.equals("Tiempo")){
-
-            }else if (criterio.equals("Costo")){
-
-            }else if(criterio.equals("Transbordo")){
-
+            if (nodoOrigen == null || nodoDestino == null) {
+                mostrarMensajeError("Debes seleccionar dos paradas antes de calcular.");
+                return;
             }
+            Parada pOrigen  = (Parada) nodoOrigen.getUserData();
+            Parada pDestino = (Parada) nodoDestino.getUserData();
+
+            System.out.println("Parada Origen: " + pOrigen.getNombre());
+            System.out.println("Parada Destino: " + pDestino.getNombre());
+
+            System.out.println("Contenido de las adyacencias del grafo:");
+            for (Map.Entry<Parada, List<Ruta>> entry : grafo.getAdyacencias().entrySet()) {
+                System.out.println("Desde " + entry.getKey().getNombre() + " hay rutas a:");
+                for (Ruta r : entry.getValue()) {
+                    System.out.println("   -> " + r.getDestino().getNombre()
+                            + " (dist: " + r.getDistancia()
+                            + ", tiempo: " + r.getTiempo() + ")");
+                }
+            }
+
+            if(criterio.equals("Distancia")) {
+                List<Parada> ruta = Algoritmos.dijkstra(
+                        grafo, pOrigen, pDestino, criterio );
+
+                System.out.println("Ruta encontrada:");
+                for (Parada p : ruta) {
+                    System.out.println("- " + p.getNombre());
+                }
+
+                if (ruta.isEmpty()) {
+                    mostrarMensajeError("No existe camino entre esas paradas.");
+                    return;
+                }
+
+                resaltarRuta(ruta);
+            }
+
+            if(criterio.equals("Tiempo")) {
+                List<Parada> ruta = Algoritmos.dijkstra(
+                        grafo, pOrigen, pDestino, criterio );
+
+                System.out.println("Ruta encontrada:");
+                for (Parada parada : ruta) {
+                    System.out.println("- " + parada.getNombre());
+                }
+
+                if (ruta.isEmpty()) {
+                    mostrarMensajeError("No existe camino entre esas paradas.");
+                    return;
+                }
+
+                resaltarRuta(ruta);
+            }
+
+
+
+
         });
     }
 
@@ -510,10 +557,12 @@ public class Controladora {
             Text nombreTexto = (Text) nodo.getChildren().get(1);
             nombreTexto.setText(nuevoNombre);
             ventanaModificar.close();
+
         });
 
         VBox layout = new VBox(10, label, campoNombre, botonConfirmar);
         layout.setStyle("-fx-padding: 10;");
+        layout.setMinWidth(280);
 
         Scene scene = new Scene(layout);
         ventanaModificar.setScene(scene);
@@ -525,11 +574,11 @@ public class Controladora {
         Stage ventanaRuta = new Stage();
         ventanaRuta.setTitle("Detalles de la Ruta");
 
-        Label labelDistancia = new Label("Distancia:");
+        Label labelDistancia = new Label("Distancia(km):");
         TextField campoDistancia = new TextField(distanciaInicial != null ? distanciaInicial : "");
-        Label labelTiempo = new Label("Tiempo:");
+        Label labelTiempo = new Label("Tiempo(min):");
         TextField campoTiempo = new TextField(tiempoInicial != null ? tiempoInicial : "");
-        Label labelCosto = new Label("Costo:");
+        Label labelCosto = new Label("Costo(RD$):");
         TextField campoCosto = new TextField(costoInicial != null ? costoInicial : "");
 
         Button botonGuardar = new Button("Guardar");
@@ -571,6 +620,7 @@ public class Controladora {
 
         VBox layout = new VBox(10, labelDistancia, campoDistancia, labelTiempo, campoTiempo, labelCosto, campoCosto, botonGuardar);
         layout.setStyle("-fx-padding: 10;");
+        layout.setMinWidth(300);
 
         Scene scene = new Scene(layout);
         ventanaRuta.setScene(scene);
@@ -598,19 +648,98 @@ public class Controladora {
 
     private void resetCalculoRutas() {
 
-        if (nodoOrigen != null) {
+        /*if (nodoOrigen != null) {
             ((Circle) nodoOrigen.getChildren().get(0))
                     .getStyleClass().removeAll("parada-selected");
         }
         if (nodoDestino != null) {
             ((Circle) nodoDestino.getChildren().get(0))
                     .getStyleClass().removeAll("parada-selected");
-        }
+        }*/
 
-        cbCriterio.getSelectionModel().selectFirst();
+        resetColores();
+
+        //cbCriterio.getSelectionModel().selectFirst();
         nodoOrigen = null;
         nodoDestino = null;
         nodosSeleccionadosCompletos = false;
         paneRutas.setVisible(false);
+    }
+
+
+
+
+
+    private void resaltarRuta(List<Parada> ruta) {
+
+        for (Node node : grafoContenedor.getChildren()) {
+            if (node instanceof Group) {
+                Group grupo = (Group) node;
+                Parada parada = (Parada) grupo.getUserData();
+                if (ruta.contains(parada)) {
+                    Circle circulo = (Circle) grupo.getChildren().get(0);
+                    circulo.getStyleClass().add("parada-preferida");
+                }
+            }
+        }
+
+
+        for (int i = 0; i < ruta.size() - 1; i++) {
+            Parada p1 = ruta.get(i);
+            Parada p2 = ruta.get(i + 1);
+
+            Group grupo1 = getGrupoPorParada(p1);
+            Group grupo2 = getGrupoPorParada(p2);
+            if (grupo1 != null && grupo2 != null) {
+                List<Line> lineasGrupo1 = lineasPorNodo.get(grupo1);
+                if (lineasGrupo1 != null) {
+                    for (Line linea : lineasGrupo1) {
+                        List<Line> lineasGrupo2 = lineasPorNodo.get(grupo2);
+                        if (lineasGrupo2 != null && lineasGrupo2.contains(linea)) {
+                            linea.getStyleClass().removeAll("linea-ruta");
+                            linea.getStyleClass().add("linea-preferida");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private Group getGrupoPorParada(Parada paradaBuscada) {
+        for (Node node : grafoContenedor.getChildren()) {
+            if (node instanceof Group) {
+                Group grupo = (Group) node;
+                Parada parada = (Parada) grupo.getUserData();
+                if (parada.equals(paradaBuscada)) {
+                    return grupo;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    private void resetColores() {
+        for (Node node : grafoContenedor.getChildren()) {
+            if (node instanceof Group) {
+                Group grupo = (Group) node;
+                Circle circulo = (Circle) grupo.getChildren().get(0);
+                circulo.getStyleClass().removeAll("parada-selected", "parada-preferida");
+                if (!circulo.getStyleClass().contains("nodo-circulo")) {
+                    circulo.getStyleClass().add("nodo-circulo");
+                }
+            }
+        }
+
+        Set<Line> todasLineas = new HashSet<>();
+        for (List<Line> lista : lineasPorNodo.values()) {
+            todasLineas.addAll(lista);
+        }
+        for (Line linea : todasLineas) {
+            linea.getStyleClass().removeAll("linea-preferida");
+            if (!linea.getStyleClass().contains("linea-ruta")) {
+                linea.getStyleClass().add("linea-ruta");
+            }
+        }
     }
 }
