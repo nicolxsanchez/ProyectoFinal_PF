@@ -4,65 +4,6 @@ import java.util.*;
 
 public class Algoritmos {
 
-  /*  public static List<Parada> dijkstra(Grafo grafo, Parada origen, Parada destino, String criterio) {
-        Map<Parada, Integer> dist = new HashMap<>();
-        Map<Parada, Parada> prev = new HashMap<>();
-        PriorityQueue<Parada> pq = new PriorityQueue<>(new Comparator<Parada>() {
-            public int compare(Parada p1, Parada p2) {
-                return Integer.compare(dist.get(p1), dist.get(p2));
-            }
-        });
-
-        for (Parada p : grafo.getAdyacencias().keySet()) {
-            dist.put(p, Integer.MAX_VALUE);
-            prev.put(p, null);
-        }
-        dist.put(origen, 0);
-        pq.add(origen);
-
-        while (!pq.isEmpty()) {
-            Parada u = pq.poll();
-            if (u.equals(destino)) break;
-
-            int du = dist.get(u);
-            List<Ruta> adyacentes = grafo.getAdyacencias().get(u);
-            if (adyacentes == null) continue;
-
-            for (Ruta r : adyacentes) {
-                Parada v = r.getDestino();
-                int peso;
-
-                if (criterio.equalsIgnoreCase("distancia")) {
-                    peso = r.getDistancia();
-                } else if (criterio.equalsIgnoreCase("tiempo")) {
-                    peso = r.getTiempo();
-                } else {
-                    peso = 1;
-                }
-
-                int alt = du + peso;
-                if (alt < dist.get(v)) {
-                    dist.put(v, alt);
-                    prev.put(v, u);
-                    pq.remove(v);
-                    pq.add(v);
-                }
-            }
-        }
-
-        List<Parada> camino = new ArrayList<>();
-        Parada paso = destino;
-        if (prev.get(paso) != null || paso.equals(origen)) {
-            while (paso != null) {
-                camino.add(paso);
-                paso = prev.get(paso);
-            }
-            Collections.reverse(camino);
-        }
-
-        return camino;
-    }*/
-
     public static List<Parada> dijkstra(Grafo grafo, Parada origen, Parada destino, String criterio) {
         if (origen == null || destino == null || !grafo.getAdyacencias().containsKey(origen)) {
             return new ArrayList<>();
@@ -70,50 +11,46 @@ public class Algoritmos {
 
         Map<Parada, Integer> dist = new HashMap<>();
         Map<Parada, Parada> prev = new HashMap<>();
-        // No usamos un conjunto "visitados" explícito, sino que usamos el valor de dist para filtrar duplicados.
-        PriorityQueue<Parada> pq = new PriorityQueue<>(Comparator.comparingInt(dist::get));
+        PriorityQueue<Parada> prioridadCola = new PriorityQueue<>(Comparator.comparingInt(dist::get));
 
-        for (Parada p : grafo.getAdyacencias().keySet()) {
-            dist.put(p, Integer.MAX_VALUE);
-            prev.put(p, null);
+        for (Parada parada : grafo.getAdyacencias().keySet()) {
+            dist.put(parada, Integer.MAX_VALUE);
+            prev.put(parada, null);
         }
         dist.put(origen, 0);
-        pq.add(origen);
+        prioridadCola.add(origen);
 
-        while (!pq.isEmpty()) {
-            Parada u = pq.poll();
+        while (!prioridadCola.isEmpty()) {
+            Parada paradaActual = prioridadCola.poll();
 
-            // Si se extrae un nodo cuya distancia no coincide con el valor actual en el mapa, se omite.
-            // Esto descarta entradas obsoletas.
-            if (dist.get(u) == Integer.MAX_VALUE) continue;
+            if (dist.get(paradaActual) == Integer.MAX_VALUE) continue;
 
-            // Si se llega al destino, se puede romper (ya que su distancia es óptima)
-            if (u.equals(destino)) {
+            if (paradaActual.equals(destino)) {
                 break;
             }
 
-            List<Ruta> adyacentes = grafo.getAdyacencias().get(u);
+            List<Ruta> adyacentes = grafo.getAdyacencias().get(paradaActual);
             if (adyacentes == null) continue;
 
-            for (Ruta r : adyacentes) {
-                Parada v = r.getDestino();
+            for (Ruta ruta : adyacentes) {
+                Parada paradaDestino = ruta.getDestino();
                 int peso;
 
                 if (criterio.equalsIgnoreCase("distancia")) {
-                    peso = r.getDistancia();
+                    peso = ruta.getDistancia();
                 } else if (criterio.equalsIgnoreCase("tiempo")) {
-                    peso = r.getTiempo();
+                    peso = ruta.getTiempo();
                 }
                 else {
 
                     continue;
                 }
-                int alt = dist.get(u) + peso;
-                if (alt < dist.get(v)) {
-                    dist.put(v, alt);
-                    prev.put(v, u);
-                    pq.remove(v);
-                    pq.add(v);
+                int nuevoCosto = dist.get(paradaActual) + peso;
+                if (nuevoCosto < dist.get(paradaDestino)) {
+                    dist.put(paradaDestino, nuevoCosto);
+                    prev.put(paradaDestino, paradaActual);
+                    prioridadCola.remove(paradaDestino);
+                    prioridadCola.add(paradaDestino);
                 }
             }
         }
@@ -130,8 +67,6 @@ public class Algoritmos {
         return camino;
     }
 
-
-
     public static List<Parada> bellmanFord(Grafo grafo, Parada origen, Parada destino) {
 
         if (origen == null || destino == null || !grafo.getAdyacencias().containsKey(origen)) {
@@ -141,50 +76,34 @@ public class Algoritmos {
         Map<Parada, Double> dist = new HashMap<>();
         Map<Parada, Parada> prev = new HashMap<>();
 
-        for (Parada p : grafo.getAdyacencias().keySet()) {
-            dist.put(p, Double.POSITIVE_INFINITY);
-            prev.put(p, null);
+        for (Parada paradaActual : grafo.getAdyacencias().keySet()) {
+            dist.put(paradaActual, Double.POSITIVE_INFINITY);
+            prev.put(paradaActual, null);
         }
 
         dist.put(origen, 0.0);
 
-        int V = grafo.getAdyacencias().size();
+        int cantParadas = grafo.getAdyacencias().size();
 
-        for (int i = 0; i < V - 1; i++) {
+        for (int i = 0; i < cantParadas - 1; i++) {
 
             for (Map.Entry<Parada, List<Ruta>> entry : grafo.getAdyacencias().entrySet()) {
-                Parada u = entry.getKey();
-                double du = dist.get(u);
+                Parada paradaOrigen = entry.getKey();
+                double distanciaOrigenActual = dist.get(paradaOrigen);
 
-                if (du == Double.POSITIVE_INFINITY) continue;
+                if (distanciaOrigenActual == Double.POSITIVE_INFINITY) continue;
 
 
-                for (Ruta r : entry.getValue()) {
-                    Parada v = r.getDestino();
-                    double costo = r.getCosto();
-                    if (du + costo < dist.get(v)) {
-                        dist.put(v, du + costo);
-                        prev.put(v, u);
+                for (Ruta rutaActual : entry.getValue()) {
+                    Parada paradaDestino = rutaActual.getDestino();
+                    double costo = rutaActual.getCosto();
+                    if (distanciaOrigenActual + costo < dist.get(paradaDestino)) {
+                        dist.put(paradaDestino, distanciaOrigenActual + costo);
+                        prev.put(paradaDestino, paradaOrigen);
                     }
                 }
             }
         }
-
-        // Opcional: Verificar la existencia de ciclos negativos (no se espera en este caso)
-        // for (Map.Entry<Parada, List<Ruta>> entry : grafo.getAdyacencias().entrySet()) {
-        //     Parada u = entry.getKey();
-        //     double du = dist.get(u);
-        //     if (du == Double.POSITIVE_INFINITY) continue;
-        //     for (Ruta r : entry.getValue()) {
-        //         Parada v = r.getDestino();
-        //         double costo = r.getCosto();
-        //         if (du + costo < dist.get(v)) {
-        //             System.out.println("El grafo contiene un ciclo negativo.");
-        //             return new ArrayList<>();
-        //         }
-        //     }
-        // }
-
         List<Parada> camino = new ArrayList<>();
         Parada actual = destino;
         while (actual != null) {

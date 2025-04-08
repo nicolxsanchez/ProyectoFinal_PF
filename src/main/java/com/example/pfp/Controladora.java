@@ -21,8 +21,6 @@ import logico.Grafo;
 import logico.Parada;
 import logico.Ruta;
 
-import javax.swing.*;
-import java.io.*;
 import java.util.*;
 
 public class Controladora {
@@ -52,7 +50,7 @@ public class Controladora {
     @FXML
     private Label lblDistancia;
 
-    private static final String archivo = "grafo003.dat";
+    private static final String archivo = "grafo050.dat";
     private int nodoContador = 1;
     private boolean moverNodo = false;
     private boolean modoAgregarNodo = false;
@@ -131,8 +129,7 @@ public class Controladora {
             System.out.println("Parada Destino: " + pDestino.getNombre());
 
             if(criterio.equals("Distancia")) {
-                List<Parada> ruta = Algoritmos.dijkstra(
-                        grafo, pOrigen, pDestino, criterio );
+                List<Parada> ruta = Algoritmos.dijkstra(grafo, pOrigen, pDestino, criterio );
 
                 System.out.println("Ruta encontrada:");
                 for (Parada p : ruta) {
@@ -149,8 +146,7 @@ public class Controladora {
             }
 
             if(criterio.equals("Tiempo")) {
-                List<Parada> ruta = Algoritmos.dijkstra(
-                        grafo, pOrigen, pDestino, criterio );
+                List<Parada> ruta = Algoritmos.dijkstra(grafo, pOrigen, pDestino, criterio );
 
                 System.out.println("Ruta encontrada:");
                 for (Parada parada : ruta) {
@@ -259,7 +255,7 @@ public class Controladora {
                    nodoOrigen = null;
                    return;
                }
-               mostrarVentanaRuta(nodoOrigen, nodoDestino, null, null, null, null);
+               ventanaRuta(nodoOrigen, nodoDestino, null, null, null, null);
                nodoOrigen = null;
            }
            return;
@@ -268,8 +264,6 @@ public class Controladora {
        if(modoCalculoRutas) {
            if (nodosSeleccionadosCompletos) return;
            Group nodoSeleccionado = getCursorPosicionNodo(event);
-
-
 
            if (nodoSeleccionado == null) return;
 
@@ -317,7 +311,6 @@ public class Controladora {
     }
 
 
-    //muy largo
     private void dibujarLineaEntreNodos(Group nodo1, Group nodo2, String distancia, String tiempo, String costo) {
         double centroContenedorX = grafoContenedor.getWidth() / 2;
         double centroContenedorY = grafoContenedor.getHeight() / 2;
@@ -360,7 +353,7 @@ public class Controladora {
                         String distanciaRuta = String.valueOf(ruta.getDistancia());
                         String tiempoRuta = String.valueOf(ruta.getTiempo());
                         String costoRuta = String.valueOf(ruta.getCosto());
-                        mostrarVentanaRuta(origen, destino, distanciaRuta, tiempoRuta, costoRuta, linea);
+                        ventanaRuta(origen, destino, distanciaRuta, tiempoRuta, costoRuta, linea);
                     }
                 }
             });
@@ -459,7 +452,6 @@ public class Controladora {
     }
 
 
-    //muy largo
     private void makeNodoMovible(Group nodo) {
         final double[] offsetX = new double[1];
         final double[] offsetY = new double[1];
@@ -485,6 +477,7 @@ public class Controladora {
 
         nodo.setOnMouseReleased(event -> {
             if (!modoAgregarNodo) return;
+
             event.consume();
         });
 
@@ -495,7 +488,7 @@ public class Controladora {
             MenuItem modificarItem = new MenuItem("Modificar");
             modificarItem.setOnAction(e -> {
                 Parada parada = (Parada) nodo.getUserData();
-                abrirVentanaModificar(parada, nodo);
+                ventanaModificarParada(parada, nodo);
             });
 
             MenuItem eliminarItem = new MenuItem("Eliminar");
@@ -526,9 +519,11 @@ public class Controladora {
                 }
                 Parada parada = (Parada) nodo.getUserData();
                 boolean eliminado = grafo.eliminarParada(parada);
+
                 if (eliminado) {
-                    Grafo.guardarGrafo(grafo, archivo);
+                    mapaVisualNodos.remove(parada);
                     grafoContenedor.getChildren().remove(nodo);
+                    Grafo.guardarGrafo(grafo, archivo);
                 }
             });
             contextMenu.getItems().addAll(modificarItem, eliminarItem);
@@ -567,7 +562,6 @@ public class Controladora {
             nuevaParada.setY(adjustadoY);
 
             Grafo.guardarGrafo(grafo, archivo);
-
         }
     }
 
@@ -584,7 +578,7 @@ public class Controladora {
     }
 
 
-    private void abrirVentanaModificar(Parada parada, Group nodo) {
+    private void ventanaModificarParada(Parada parada, Group nodo) {
         Stage ventanaModificar = new Stage();
         ventanaModificar.setTitle("Modificar Parada");
 
@@ -601,7 +595,6 @@ public class Controladora {
             Text nombreTexto = (Text) nodo.getChildren().get(1);
             nombreTexto.setText(nuevoNombre);
             ventanaModificar.close();
-
         });
 
         VBox layout = new VBox(10, label, campoNombre, botonConfirmar);
@@ -614,7 +607,7 @@ public class Controladora {
     }
 
 
-    private void mostrarVentanaRuta(Group nodoOrigen, Group nodoDestino, String distanciaInicial, String tiempoInicial, String costoInicial, Line lineaExistente) {
+    private void ventanaRuta(Group pOrigen, Group pDestino, String distanciaInicial, String tiempoInicial, String costoInicial, Line lineaExiste) {
         Stage ventanaRuta = new Stage();
         ventanaRuta.setTitle("Detalles de la Ruta");
 
@@ -633,32 +626,30 @@ public class Controladora {
 
             if (validarDatos(distancia, tiempo, costo)) {
                 try {
-                    int distanciaInt = Integer.parseInt(distancia);
-                    int tiempoInt = Integer.parseInt(tiempo);
-                    double costoDouble = Double.parseDouble(costo);
+                    int distanciaModificada = Integer.parseInt(distancia);
+                    int tiempoModificado = Integer.parseInt(tiempo);
+                    double costoModificado = Double.parseDouble(costo);
 
-                    Parada paradaOrigen = (Parada) nodoOrigen.getUserData();
-                    Parada paradaDestino = (Parada) nodoDestino.getUserData();
+                    Parada paradaOrigen = (Parada) pOrigen.getUserData();
+                    Parada paradaDestino = (Parada) pDestino.getUserData();
 
-                    if (lineaExistente == null) {
-                        dibujarLineaEntreNodos(nodoOrigen, nodoDestino, distancia, tiempo, costo);
-                        grafo.agregarRuta(paradaOrigen, paradaDestino, tiempoInt, distanciaInt, costoDouble);
+                    if (lineaExiste == null) {
+                        dibujarLineaEntreNodos(pOrigen, pDestino, distancia, tiempo, costo);
+                        grafo.agregarRuta(paradaOrigen, paradaDestino, tiempoModificado, distanciaModificada, costoModificado);
                         Grafo.guardarGrafo(grafo, archivo);
                     } else {
-                        Text texto = textoPorLinea.get(lineaExistente);
+                        Text texto = textoPorLinea.get(lineaExiste);
                         texto.setText(distancia + " km, " + tiempo + " min, RD$" + costo);
-                        grafo.modificarRuta(paradaOrigen, paradaDestino, tiempoInt, distanciaInt, costoDouble);
+                        grafo.modificarRuta(paradaOrigen, paradaDestino, tiempoModificado, distanciaModificada, costoModificado);
                         Grafo.guardarGrafo(grafo, archivo);
                     }
-
                     ventanaRuta.close();
-
 
                 } catch (NumberFormatException ex) {
                     mostrarMensajeError("Los valores deben ser numéricos válidos.");
                 }
             } else {
-                mostrarMensajeError("Error, revisar los datos de la Ruta.");
+                mostrarMensajeError("Error, revisar los datos de la ruta.");
             }
         });
 
@@ -672,7 +663,6 @@ public class Controladora {
         ventanaRuta.initOwner(grafoContenedor.getScene().getWindow());
         grafoContenedor.requestFocus();
         ventanaRuta.showAndWait();
-
     }
 
 
@@ -681,10 +671,10 @@ public class Controladora {
             return false;
         }
         try {
-            int d = Integer.parseInt(distancia);
-            int t = Integer.parseInt(tiempo);
-            double c = Double.parseDouble(costo);
-            if (d < 0 || t < 0 || c < 0) {
+            int distance = Integer.parseInt(distancia);
+            int time = Integer.parseInt(tiempo);
+            double cost = Double.parseDouble(costo);
+            if (distance < 0 || time < 0 || cost < 0) {
                 return false;
             }
         } catch (NumberFormatException e) {
@@ -702,10 +692,10 @@ public class Controladora {
         alerta.showAndWait();
     }
 
+
     private void resetCalculoRutas() {
 
         resetColores();
-
         nodoOrigen = null;
         nodoDestino = null;
         nodosSeleccionadosCompletos = false;
@@ -716,9 +706,8 @@ public class Controladora {
 
     private void resaltarRuta(List<Parada> ruta) {
 
-        for (Node node : grafoContenedor.getChildren()) {
-            if (node instanceof Group) {
-                Group grupo = (Group) node;
+        for (Node nodo : grafoContenedor.getChildren()) {
+            if (nodo instanceof Group grupo) {
                 Parada parada = (Parada) grupo.getUserData();
                 if (ruta.contains(parada)) {
                     Circle circulo = (Circle) grupo.getChildren().get(0);
@@ -726,7 +715,6 @@ public class Controladora {
                 }
             }
         }
-
 
         for (int i = 0; i < ruta.size() - 1; i++) {
             Parada p1 = ruta.get(i);
@@ -752,8 +740,7 @@ public class Controladora {
 
     private Group getGrupoPorParada(Parada paradaBuscada) {
         for (Node node : grafoContenedor.getChildren()) {
-            if (node instanceof Group) {
-                Group grupo = (Group) node;
+            if (node instanceof Group grupo) {
                 Parada parada = (Parada) grupo.getUserData();
                 if (parada.equals(paradaBuscada)) {
                     return grupo;
@@ -764,20 +751,21 @@ public class Controladora {
     }
 
 
-    private void mostrarResultadosRuta(List<Parada> ruta) {
+    private void mostrarResultadosRuta(List<Parada> rutas) {
         double totalTiempo = 0;
         double totalCosto = 0;
         double totalDistancia = 0;
 
-        for (int i = 0; i < ruta.size() - 1; i++) {
-            Parada actual = ruta.get(i);
-            Parada siguiente = ruta.get(i + 1);
+        for (int i = 0; i < rutas.size() - 1; i++) {
+            Parada actual = rutas.get(i);
+            Parada siguiente = rutas.get(i + 1);
             List<Ruta> adyacentes = grafo.getAdyacencias().get(actual);
-            for (Ruta r : adyacentes) {
-                if (r.getDestino().equals(siguiente)) {
-                    totalTiempo += r.getTiempo();
-                    totalCosto += r.getCosto();
-                    totalDistancia += r.getDistancia();
+
+            for (Ruta ruta : adyacentes) {
+                if (ruta.getDestino().equals(siguiente)) {
+                    totalTiempo += ruta.getTiempo();
+                    totalCosto += ruta.getCosto();
+                    totalDistancia += ruta.getDistancia();
                     break;
                 }
             }
@@ -788,6 +776,7 @@ public class Controladora {
         lblDistancia.setText(String.format("%.0f km", totalDistancia));
         paneResultado.setVisible(true);
     }
+
 
     private void resetColores() {
         for (Node node : grafoContenedor.getChildren()) {
@@ -813,17 +802,6 @@ public class Controladora {
         }
     }
 
-
-
-    private int contarRutas(Grafo grafo) {
-        int total = 0;
-        for (List<Ruta> listaRutas : grafo.getAdyacencias().values()) {
-            if (listaRutas != null) {
-                total += listaRutas.size();
-            }
-        }
-        return total;
-    }
 
     private void cargarGrafoVisual(String archivos) {
 
@@ -875,11 +853,9 @@ public class Controladora {
         Group nodo = new Group(circulo, nombre);
         nodo.setTranslateX(parada.getX());
         nodo.setTranslateY(parada.getY());
+
         nodo.setUserData(parada);
 
         return nodo;
     }
-
-
-
 }
