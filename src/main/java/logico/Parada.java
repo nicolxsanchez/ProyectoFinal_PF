@@ -1,6 +1,8 @@
 package logico;
 
-public class Parada {
+import java.io.Serializable;
+
+public class Parada implements Serializable {
 
     private String nombre;
     private double x;

@@ -1,6 +1,10 @@
 package logico;
 
-public class Ruta {
+import javafx.fxml.Initializable;
+
+import java.io.Serializable;
+
+public class Ruta implements Serializable {
 
     private Parada origen;
     private Parada destino;

@@ -42,13 +42,52 @@
             </Button>
             <Pane fx:id="paneRutas" prefHeight="198.0" prefWidth="231.0" styleClass="pane-rutas" visible="false">
                <children>
-                  <Label layoutX="27.0" layoutY="30.0" text="Criterio de Optimización:" textFill="#4eacf8">
+                  <Label layoutX="86.0" layoutY="27.0" text="Criterio:" textFill="#4eacf8">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Label>
                   <ComboBox fx:id="cbCriterio" layoutX="31.0" layoutY="73.0" prefHeight="25.0" prefWidth="168.0" promptText="&lt;Seleccionar&gt;" />
                   <Button fx:id="btnCalcular" layoutX="83.0" layoutY="137.0" mnemonicParsing="false" styleClass="button-calcular" text="Calcular" />
+               </children>
+            </Pane>
+            <Pane fx:id="paneResultado" layoutX="10.0" layoutY="281.0" prefHeight="329.0" prefWidth="231.0" styleClass="pane-rutas" visible="false">
+               <children>
+                  <Label layoutX="78.0" layoutY="26.0" text="Resultado:" textFill="#4eacf8">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="68.0" layoutY="73.0" text="Distancia Total:" textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="59.0" layoutY="155.0" text="Tiempo Estimado:" textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="77.0" layoutY="244.0" text="Costo Total:" textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="lblDistancia" layoutX="102.0" layoutY="101.0" textFill="WHITE">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="lblTiempo" layoutX="102.0" layoutY="186.0" textFill="WHITE">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="lblCosto" layoutX="85.0" layoutY="273.0" textFill="WHITE">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </Label>
                </children>
             </Pane>
          </children>

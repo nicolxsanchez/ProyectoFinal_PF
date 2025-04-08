@@ -1,7 +1,10 @@
 package logico;
 
+import javafx.fxml.Initializable;
+
+import java.io.*;
 import java.util.*;
-public class Grafo {
+public class Grafo implements Serializable {
 
     private Map<Parada, List<Ruta>> adyacencias;
 
@@ -12,6 +15,24 @@ public class Grafo {
     public List<Parada> getParadas() {
         return new ArrayList<>(adyacencias.keySet());
     }
+
+
+    public static void guardarGrafo(Grafo grafo, String archivo) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
+            oos.writeObject(grafo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Grafo cargarGrafo(String archivo) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+            return (Grafo) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            return new Grafo();
+        }
+    }
+
 
     public List<Ruta> getRutas() {
         List<Ruta> rutas = new ArrayList<>();

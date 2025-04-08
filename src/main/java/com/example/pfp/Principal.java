@@ -14,7 +14,7 @@ public class Principal extends Application {
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("Principal.fxml"));
 
             Scene scene = new Scene(fxmlLoader.load());
-            stage.setTitle("Inicio");
+            stage.setTitle("Sistema de Gestión de Rutas de Transporte Público");
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();
