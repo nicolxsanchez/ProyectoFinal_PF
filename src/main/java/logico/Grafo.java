@@ -1,6 +1,5 @@
 package logico;
 
-import javafx.fxml.Initializable;
 
 import java.io.*;
 import java.util.*;
@@ -60,7 +59,6 @@ public class Grafo implements Serializable {
 
         for (Ruta ruta : adyacencias.get(origen)) {
             if (ruta.getDestino().equals(destino)) {
-                // Modificar los atributos de la ruta
                 ruta.setTiempo(tiempo);
                 ruta.setDistancia(distancia);
                 ruta.setCosto(costo);

@@ -50,7 +50,7 @@ public class Controladora {
     @FXML
     private Label lblDistancia;
 
-    private static final String archivo = "grafo050.dat";
+    private static final String archivo = "grafo10.dat";
     private int nodoContador = 1;
     private boolean moverNodo = false;
     private boolean modoAgregarNodo = false;
@@ -403,7 +403,7 @@ public class Controladora {
             menu.show(linea, event.getScreenX(), event.getScreenY());
         });
 
-        Text texto = new Text(distancia + " km, " + tiempo + " min, RD$" + costo);
+        Text texto = new Text(distancia + " km\n" + tiempo + " min\n RD$" + costo);
         texto.setFont(Font.font(12));
         texto.setFill(Color.DARKBLUE);
         posicionarTextoLinea(texto, startX, startY, endX, endY);
